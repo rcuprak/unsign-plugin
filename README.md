@@ -1,2 +1,3 @@
-# unsign-plugin
-An plugin that ensigns JARs
+# Gradle Unsign Plugin
+
+This plugin unsigns JAR files in a directory.

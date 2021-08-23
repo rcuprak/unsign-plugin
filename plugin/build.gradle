@@ -1,0 +1,72 @@
+plugins {
+    id "com.gradle.plugin-publish" version "0.15.0"
+    id 'java-gradle-plugin'
+    id 'maven-publish'
+}
+
+description = "This plugin unsigns any JARs in a directory. If you are signing JARs using your own certificate, you first need to remove any existing certificates."
+group = 'com.rcjava.unsign'
+version = '0.0.1'
+
+
+repositories {
+    maven {
+        url "${nexusURL}"
+        allowInsecureProtocol true
+        credentials {
+            username nexusUsername
+            password nexusPassword
+        }
+    }
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.1'
+    implementation 'commons-io:commons-io:2.10.0'
+}
+
+gradlePlugin {
+    plugins {
+        unsign {
+            id = 'com.rcjava.unsign'
+            implementationClass = 'com.rcjava.unsign.UnsignPlugin'
+        }
+    }
+}
+
+pluginBundle {
+    website = 'https://github.com/rcuprak/unsign-plugin'
+    vcsUrl = 'https://github.com/rcuprak/unsign-plugin'
+    description = 'This plugin unsigns JARs in a directory.'
+    tags = ['java', 'gradle' , 'webstart']
+
+    plugins {
+        unsign {
+            // id is captured from java-gradle-plugin configuration
+            displayName = 'Unsign Plugin'
+        }
+    }
+}
+
+sourceSets {
+    functionalTest {
+    }
+}
+
+gradlePlugin.testSourceSets(sourceSets.functionalTest)
+configurations.functionalTestImplementation.extendsFrom(configurations.testImplementation)
+
+tasks.register('functionalTest', Test) {
+    testClassesDirs = sourceSets.functionalTest.output.classesDirs
+    classpath = sourceSets.functionalTest.runtimeClasspath
+    useJUnitPlatform()
+}
+
+tasks.named('check') {
+    dependsOn(tasks.functionalTest)
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
